@@ -1,5 +1,6 @@
 <template>
  <section class="produtos-container">
+
   <div v-if="produtos && produtos.length" class="produtos">
     <div v-for="produto, index in produtos" :key="produto.id + index" class="produto">
       <router-link to="/">
@@ -9,23 +10,33 @@
         <p>{{ produto.descricao }}</p>
       </router-link>
     </div>
+
+    <ProdutosPaginacao  :produtosTotal='produtosTotal' :produtosPorPagina='perPage' />
   </div>
+
   <div v-else-if="produtos && !produtos.length">
     <p class="sem-resultados">Busca sem resultados. Tente buscar outro termo.</p>
   </div>
+
  </section>
 </template>
 
 <script>
+import ProdutosPaginacao from '@/components/ProdutosPaginacao.vue'
 import { api } from '@/api';
 import { serialize } from '@/helpers.js';
 
 export default {
   name: 'ProdutosLista',
+  components: {
+    ProdutosPaginacao,
+  },
   data() {
     return {
       produtos: null,
-      perPage: 5
+      perPage: 6,
+      produtosTotal: 0,
+
     }
   },
   computed: {
@@ -44,6 +55,7 @@ export default {
       api.get(this.url)
       .then(r => {
         this.produtos = r.data;
+        this.produtosTotal = Number(r.headers['x-total-count']);
       })
     },
   },
