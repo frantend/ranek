@@ -1,6 +1,6 @@
 <template>
  <section class="produtos-container">
-  <div v-for="produto in produtos" :key="produto.id">
+  <div v-for="produto, index in produtos" :key="produto.id + index">
     <img v-if="produto.foto" :src="produto.fotos[0].src" :alt="produto.fotos[0].titulo">
     <p class="preco">{{ produto.preco }}</p>
     <h2 class="titulo">{{ produto.titulo }}</h2>
@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import { api } from '@/api';
+
 export default {
   name: 'ProdutosLista',
   data() {
@@ -19,10 +21,9 @@ export default {
   },
   methods: {
     getProdutos() {
-      fetch('http://localhost:3001/produto')
-      .then(r => r.json())
-      .then(json => {
-        this.produtos = json
+      api.get('/produto')
+      .then(r => {
+        this.produtos = r.data;
       })
     },
   },
