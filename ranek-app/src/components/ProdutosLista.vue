@@ -3,7 +3,7 @@
   <div v-for="produto, index in produtos" :key="produto.id + index">
     <img v-if="produto.foto" :src="produto.fotos[0].src" :alt="produto.fotos[0].titulo">
     <p class="preco">{{ produto.preco }}</p>
-    <h2 class="titulo">{{ produto.titulo }}</h2>
+    <h2 class="titulo">{{ produto.nome }}</h2>
     <p>{{ produto.descricao }}</p>
   </div>
  </section>
@@ -11,17 +11,30 @@
 
 <script>
 import { api } from '@/api';
+import { serialize } from '@/helpers.js';
 
 export default {
   name: 'ProdutosLista',
   data() {
     return {
       produtos: null,
+      perPage: 5
+    }
+  },
+  computed: {
+    url() {
+      return '/produto?_limit=' + this.perPage + serialize(this.$route.query);
+    }
+
+  },
+  watch: {
+    url() {
+      this.getProdutos();
     }
   },
   methods: {
     getProdutos() {
-      api.get('/produto')
+      api.get(this.url)
       .then(r => {
         this.produtos = r.data;
       })
@@ -29,7 +42,7 @@ export default {
   },
   created() {
     this.getProdutos();
-  }
+  },
 }
 </script>
 
