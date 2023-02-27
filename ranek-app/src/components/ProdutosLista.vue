@@ -1,7 +1,7 @@
 <template>
  <section class="produtos-container">
-
-  <div v-if="produtos && produtos.length" class="produtos">
+ <transition mode="out-in">
+  <div v-if="produtos && produtos.length" class="produtos" key="produtos">
     <div v-for="produto, index in produtos" :key="produto.id + index" class="produto">
       <router-link to="/">
         <img v-if="produto.foto" :src="produto.fotos[0].src" :alt="produto.fotos[0].titulo">
@@ -14,15 +14,17 @@
     <ProdutosPaginacao  :produtosTotal='produtosTotal' :produtosPorPagina='perPage' />
   </div>
 
-  <div v-else-if="produtos && !produtos.length">
+  <div v-else-if="produtos && !produtos.length" key="sem-resultados">
     <p class="sem-resultados">Busca sem resultados. Tente buscar outro termo.</p>
   </div>
+  <PaginaCarregando key="carregando" v-else />
 
+</transition>
  </section>
 </template>
 
 <script>
-import ProdutosPaginacao from '@/components/ProdutosPaginacao.vue'
+import ProdutosPaginacao from '@/components/ProdutosPaginacao.vue';
 import { api } from '@/api';
 import { serialize } from '@/helpers.js';
 
@@ -34,7 +36,7 @@ export default {
   data() {
     return {
       produtos: null,
-      perPage: 6,
+      perPage: 9,
       produtosTotal: 0,
 
     }
@@ -52,11 +54,14 @@ export default {
   },
   methods: {
     getProdutos() {
-      api.get(this.url)
-      .then(r => {
-        this.produtos = r.data;
-        this.produtosTotal = Number(r.headers['x-total-count']);
-      })
+      this.produtos = null;
+      setTimeout(() => {
+        api.get(this.url)
+        .then(r => {
+          this.produtos = r.data;
+          this.produtosTotal = Number(r.headers['x-total-count']);
+        });
+      }, 1500)
     },
   },
   created() {
